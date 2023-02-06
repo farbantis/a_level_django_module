@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% block staff %}
+    <div style="max-width: 1200px; margin: 0 auto">
+    <h1>review merchandise (click to update)</h1>
+        {% for merchandise in merchandises %}
+            <div>
+                <a href="{% url 'shop:update_merchandise' merchandise.id %}">{{ merchandise.name }}</a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+</body>
+</html>

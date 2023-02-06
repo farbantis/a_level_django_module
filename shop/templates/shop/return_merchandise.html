@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% block staff %}
+    <div style="max-width: 1200px; margin: 0 auto">
+    <h1>review returns</h1>
+    {% for return in returns %}
+        <div>{{ return.order_to_return }} at {{ return.returned_at }}</div>
+        <form action="" method="post">
+            {% csrf_token %}
+            <input type="text" hidden value="{{ return.id }}" name="return">
+            <button>ACCEPT RETURN</button>
+{#            <button type="submit" value="{{ return }}" name="return">accept return</button>#}
+        </form>
+    {% endfor %}
+
+    </div>
+{% endblock %}
+</body>
+</html>

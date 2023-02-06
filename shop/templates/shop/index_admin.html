@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+{% block staff %}
+<div class="container" style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-around">
+    {% for product in products %}
+        <div class="card" style="margin: 10px">
+            <div class="title">{{ product.name }}</div>
+            <img  src="{{ product.picture.url }}" style="width: 400px">
+            <div class="title">price: {{ product.price }}$</div>
+            <div class="quan_st">in stock: {{ product.stock }}pcs</div>
+            <button type="button" >Change</button>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+</body>
+</html>
