@@ -5,24 +5,25 @@
     <title>Title</title>
 </head>
 <body>
+Navigation:
 
-{% if request.user.is_staff %}}
+{% if request.user.is_authenticated %}
+<div><a href="{% url 'shop:logout' %}">Logout</a></div>
+{% else %}
+<div><a href="{% url 'shop:login' %}">Login</a></div>
+<div><a href="{% url 'shop:register_user' %}">Register</a></div>
+{% endif %}
+<br>
+{% if request.user.is_staff %}
     <div><a href="{% url 'shop:review_merchandise' %}">List of merchandise</a></div>
     <div><a href="{% url 'shop:add_merchandise' %}">Add merchandise</a></div>
-{#    <div><a href="{% url 'shop:change_merchandise' pk %}">Update goods</a></div>#}
     <div><a href="{% url 'shop:returned_merchandise' %}">Check returns</a></div>
 {% else %}
-    <div><a href="{% url 'shop:login' %}">Login</a></div>
-    <div><a href="{% url 'shop:register_user' %}">Register</a></div>
     {% if request.user.is_authenticated %}
         <div><a href="{% url 'shop:index' %}">Continue shopping</a></div>
         <div><a href="{% url 'shop:order_history' %}">Order History</a></div>
-        <div><a href="{% url 'shop:logout' %}">Logout</a></div>
     {% endif %}
-
 {% endif %}
-
-
 
 {% if request.user.is_staff %}
     {% block staff %}
@@ -31,8 +32,6 @@
     {% block user %}
     {% endblock %}
 {% endif %}
-
-
 
 </body>
 </html>

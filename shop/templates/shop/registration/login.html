@@ -7,10 +7,13 @@
 <body>
 
 <h1>login</h1>
+{% include 'messages_inclusion.html' %}
 <form action="" method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit">
+    <button type="submit">LOGIN</button>
 </form>
-</html>
+
+
 </body>
+</html>

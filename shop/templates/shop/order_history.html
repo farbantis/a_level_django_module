@@ -8,20 +8,21 @@
 <body>
 
 {% block user %}
-<div class="container" style="max-width: 1200px; margin: 0 auto; display: block; flex-wrap: wrap; justify-content: space-around">
-<h1>order history</h1>
+
+{% include 'messages_inclusion.html' %}
+
+<div class="container"
+     style="max-width: 1200px; margin: 0 auto; display: block; flex-wrap: wrap; justify-content: space-around">
+    <h1>order history</h1>
     {% for purchase in purchases %}
-    {{ forloop.counter }} item
+        {{ forloop.counter }} item
         <div class="card" style="margin: 10px">
             <div class="title">{{ purchase.merchandise }}</div>
-{#            <img  src="{{ purchase.merchandise.picture.url }}" style="width: 400px">#}
             <div class="title">order quantity: {{ purchase.order_quantity }}pcs</div>
             <div class="quan_st">amount: {{ purchase.get_order_value }}$</div>
-            <a href="{% url 'shop:index' %}">apply for return</a>
-            {{ purchase.id }}
+            {#            <a href="{% url 'shop:index' %}">apply for return</a>#}
             <form action="" method="post">
                 {% csrf_token %}
-{#                <input type="number" hidden name="return_id" value="{{ purchase.id }}">#}
                 <input type="number" hidden name="return_id" value="{{ purchase.id }}">
                 <button type="submit">RETURN</button>
             </form>
@@ -29,7 +30,6 @@
     {% endfor %}
 </div>
 {% endblock %}
-
 
 </body>
 </html>

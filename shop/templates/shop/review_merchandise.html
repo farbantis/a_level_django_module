@@ -8,12 +8,20 @@
 <body>
 {% block staff %}
     <div style="max-width: 1200px; margin: 0 auto">
-    <h1>review merchandise (click to update)</h1>
+        <h1>list of merchandise (click to update)</h1>
+        {% include 'messages_inclusion.html' %}
         {% for merchandise in merchandises %}
             <div>
-                <a href="{% url 'shop:update_merchandise' merchandise.id %}">{{ merchandise.name }}</a>
+                <a href="{% url 'shop:update_merchandise' merchandise.id %}">
+                    <div>item: {{ merchandise.name }}</div>
+                    <div>stock: {{ merchandise.stock }}</div>
+                    <div>unit price: {{ merchandise.price }}</div>
+                </a>
+                    <button onclick="location.href='{% url 'shop:update_merchandise' merchandise.id %}'">PRESS TO CHANGE DATA</button>
+                <br><br>
             </div>
         {% endfor %}
+
     </div>
 {% endblock %}
 

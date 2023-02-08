@@ -6,10 +6,11 @@
 </head>
 <body>
 <h1>user registration</h1>
+{% include 'messages_inclusion.html' %}
 <form action="" method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit">
+    <button type="submit">REGISTER</button>
 </form>
 </body>
 </html>

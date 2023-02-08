@@ -9,8 +9,11 @@
 {% block staff %}
     <div style="max-width: 1200px; margin: 0 auto">
     <h1>you are going to add a merchandise</h1>
-    {{ form.as_p }}
-    <button>Save</button>
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+     </form>
     </div>
 {% endblock %}
 </body>
