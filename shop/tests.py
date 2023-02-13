@@ -2,6 +2,47 @@ from django.contrib.auth import authenticate
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from .models import Merchandise, Order, ShopBuyer
+from .views import OrderHistoryView
+
+
+class OrderHistoryTests(TestCase):
+    def setUp(self) -> None:
+        product1 = Merchandise.objects.create(
+            name='item1',
+            description='item1-desc',
+            price=10,
+            picture='/media/pictures/2023/02/airpods.jpg',
+            stock=100
+        )
+        product2 = Merchandise.objects.create(
+            name='item2',
+            description='item2-desc',
+            price=20,
+            picture='/media/pictures/2023/02/airpods1.jpg',
+            stock=200
+        )
+        self.user = ShopBuyer.objects.create(username='testuser', password='testuserpassword', wallet=200)
+        Order.objects.create(
+            merchandise_id=product1.id,
+            buyer_id=self.user.id,
+            order_quantity=10
+        )
+        Order.objects.create(
+            merchandise_id=product2.id,
+            buyer_id=self.user.id,
+            order_quantity=20
+        )
+
+    def test_get_queryset(self):
+        list_view = OrderHistoryView()
+        request = self.client.get(reverse('shop:order_history'))
+        request.user = self.user
+        list_view.setup(request)
+
+        queryset = list_view.get_queryset()
+        self.assertEqual(queryset.count(), 2)
+        self.assertEqual(str(queryset[0].merchandise), 'item1')
+        self.assertEqual(str(queryset[1].merchandise), 'item2')
 
 
 class ProductViewTests(TestCase):
