@@ -1,44 +1,64 @@
-from django.contrib.auth import authenticate, get_user_model
-from django.test import TestCase, Client, RequestFactory
+from django.contrib.auth import authenticate
+from django.test import TestCase, RequestFactory
 from django.urls import reverse
-from django.contrib import messages
-from .models import Merchandise, Order, ShopBuyer, ShopUser
+from .models import Merchandise, Order, ShopBuyer
 
 
 class ProductViewTests(TestCase):
     def setUp(self):
         self.username = 'testuser'
         self.password = 'testpassword'
-        self.shop_buyer = ShopBuyer.objects.create(username=self.username, password=self.password, wallet=100)
-        self.client.login(username=self.username, password=self.password)
-        self.product = Merchandise.objects.create(name='Test Product', price=10, stock=100)
-        #self.order = Order.objects.create(merchandise_id=self.product.id, buyer_id=self.shop_buyer.id, order_quantity=10)
+        self.wallet = 200
+        self.stock = 100
+        self.price = 10
+        self.order_quantity = 20
+        self.shop_buyer = ShopBuyer.objects.create_user(
+            username=self.username,
+            password=self.password,
+            wallet=self.wallet)
+        self.product = Merchandise.objects.create(
+            name='Test Product',
+            price=self.price,
+            stock=self.stock,
+            picture='/media/pictures/2023/02/airpods.jpg')
+        self.order = Order.objects.create(
+            merchandise_id=self.product.id,
+            buyer_id=self.shop_buyer.id,
+            order_quantity=self.order_quantity)
+        self.user = ShopBuyer.objects.get(username=self.username)
 
-    def test_product_view_post_with_sufficient_stock_and_funds(self):
-        #browser_response = self.client.post(reverse('shop:index'), {'id': 1, 'quantity': 10})
-        #print(browser_response)
-        #browser_response = self.client.post(reverse('shop:index'), {'id': self.product.id, 'quantity': 10})
-        self.assertEqual(Merchandise.objects.get(id=self.product.id).stock, 100)
-        self.assertEqual(ShopBuyer.objects.get(username=self.username).wallet, 100)
-        print(self.shop_buyer.id, self.shop_buyer.username, self.shop_buyer.wallet)
-        print(self.product.id, self.product.name, self.product.price, self.product.stock)
-        # self.assertRedirects(response, reverse('shop:index'))
-#         self.assertEqual(len(messages.get_messages(response.wsgi_request)), 1)
-#         self.assertEqual(str(messages.get_messages(response.wsgi_request)[0]), 'congratulations you place the order')
+    def tearDown(self) -> None:
+        self.order.delete()
+        self.product.delete()
+        self.shop_buyer.delete()
 
-    # def test_product_view_post_with_insufficient_stock(self):
-    #     response = self.client.post(reverse('shop:index'), {'id': self.product.id, 'quantity': 200})
-    #     self.assertRedirects(response, reverse('shop:index'))
-    #     self.assertEqual(len(messages.get_messages(response.wsgi_request)), 1)
-    #     self.assertEqual(str(messages.get_messages(response.wsgi_request)[0]), 'not enough stock to serve your order')
-    #
-    # def test_product_view_post_with_insufficient_funds(self):
-    #     self.shop_buyer.wallet = 5
-    #     self.shop_buyer.save()
-    #     response = self.client.post(reverse('shop:index'), {'id': self.product.id, 'quantity': 10})
-    #     self.assertRedirects(response, reverse('shop:index'))
-    #     self.assertEqual(len(messages.get_messages(response.wsgi_request)), 1)
-    #     self.assertEqual(str(messages.get_messages(response.wsgi_request)[0]), 'you dont have enough money')
+    def test_not_enough_stock(self):
+        self.order.order_quantity = 1000
+        self.assertFalse(self.order.is_merchandise_in_stock)
+
+    def test_enough_stock(self):
+        self.assertTrue(self.order.is_merchandise_in_stock)
+
+    def test_not_enough_money(self):
+        self.order.buyer.wallet = 199
+        self.assertFalse(self.order.is_enough_money)
+
+    def test_is_enough_money(self):
+        self.assertTrue(self.order.is_enough_money)
+
+    def test_order_object_creation(self):
+        self.assertEqual(Order.objects.count(), 1)
+        self.assertEqual(self.order.order_quantity, self.order_quantity)
+        self.assertEqual(self.product.stock, self.stock)
+
+    # ? тупой тест...
+    def test_is_money_deduction_after_order(self):
+        self.user.wallet -= self.order.get_order_value
+        self.assertEqual(self.user.wallet, self.wallet - self.order.get_order_value)
+
+    def test_is_stock_decreases_after_order(self):
+        self.product.stock -= self.order.order_quantity
+        self.assertEqual(self.product.stock, self.stock - self.order.order_quantity)
 
 
 class LoginViewTests(TestCase):
@@ -46,7 +66,8 @@ class LoginViewTests(TestCase):
         self.factory = RequestFactory
         self.username = 'testuser'
         self.password = 'testpassword'
-        self.user = ShopBuyer.objects.create_user(username=self.username, password=self.password, email='test@example.com', wallet=100)
+        self.user = ShopBuyer.objects.create_user(username=self.username, password=self.password,
+                                                  email='test@example.com', wallet=100)
 
     def tearDown(self) -> None:
         self.user.delete()
@@ -68,13 +89,11 @@ class LoginViewTests(TestCase):
         self.assertFalse((user is not None) and user.is_authenticated)
 
     def test_normal_user_redirect(self):
-        client = Client()
-        response = client.post(reverse('shop:login'), {'username': self.username, 'password': self.password})
+        response = self.client.post(reverse('shop:login'), {'username': self.username, 'password': self.password})
         self.assertRedirects(response, reverse('shop:index'))
 
     def test_staff_user_redirect(self):
         self.user.is_staff = True
         self.user.save()
-        client = Client()
-        response = client.post(reverse('shop:login'), {'username': self.username, 'password': self.password})
+        response = self.client.post(reverse('shop:login'), {'username': self.username, 'password': self.password})
         self.assertRedirects(response, reverse('shop:review_merchandise'))
