@@ -164,3 +164,15 @@ class RegisterUserViewTests(TestCase):
     def test_user_gets_money_in_wallet_after_register(self):
         buyer = ShopBuyer.objects.create_user(username=self.user, password=self.password, wallet=self.wallet)
         self.assertEqual(buyer.wallet, self.wallet)
+
+
+class AddMerchandiseViewTests(TestCase):
+    pass
+
+
+class UpdateMerchandiseViewTest(TestCase):
+    pass
+
+
+class ReturnedMerchandiseViewTest(TestCase):
+    pass
