@@ -7,7 +7,7 @@ from .views import OrderHistoryView
 
 
 class ShopBuyerFactory(factory.django.DjangoModelFactory):
-    username = 'testuser'
+    username = factory.Sequence(lambda n: 'testuser%d' % n)
     password = factory.PostGenerationMethodCall('set_password', 'testpassword')
     email = factory.Faker('email')
     wallet = 200
