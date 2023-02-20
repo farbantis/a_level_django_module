@@ -69,11 +69,11 @@ class ProductViewTests(TestCase):
         self.wallet = 200
         self.stock = 100
         self.order_quantity = 20
-        #self.order = OrderFactory()
-        self.order = Order.objects.create(
-            merchandise_id=self.product.id,
-            buyer_id=self.shop_buyer.id,
-            order_quantity=self.order_quantity)
+        self.order = OrderFactory()
+        # self.order = Order.objects.create(
+        #     merchandise_id=self.product.id,
+        #     buyer_id=self.shop_buyer.id,
+        #     order_quantity=self.order_quantity)
 
     def tearDown(self) -> None:
         self.order.delete()
