@@ -7,7 +7,7 @@ from .views import OrderHistoryView
 
 
 class ShopBuyerFactory(factory.django.DjangoModelFactory):
-    username = 'testuser'
+    username = factory.Sequence(lambda n: 'testuser%d' % n)
     password = factory.PostGenerationMethodCall('set_password', 'testpassword')
     email = factory.Faker('email')
     wallet = 200
@@ -69,11 +69,11 @@ class ProductViewTests(TestCase):
         self.wallet = 200
         self.stock = 100
         self.order_quantity = 20
-        #self.order = OrderFactory()
-        self.order = Order.objects.create(
-            merchandise_id=self.product.id,
-            buyer_id=self.shop_buyer.id,
-            order_quantity=self.order_quantity)
+        self.order = OrderFactory()
+        # self.order = Order.objects.create(
+        #     merchandise_id=self.product.id,
+        #     buyer_id=self.shop_buyer.id,
+        #     order_quantity=self.order_quantity)
 
     def tearDown(self) -> None:
         self.order.delete()
