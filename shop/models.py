@@ -4,16 +4,8 @@ from django.db import models
 from django.urls import reverse
 
 
-class ShopUser(AbstractUser):
-    pass
-
-
-class ShopAdmin(ShopUser):
-    pass
-
-
-class ShopBuyer(ShopUser):
-    wallet = models.DecimalField(max_digits=10, decimal_places=2)
+class ShopBuyer(AbstractUser):
+    wallet = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
         return f"{self.username}"

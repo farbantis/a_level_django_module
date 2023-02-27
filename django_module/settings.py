@@ -31,7 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-AUTH_USER_MODEL = 'shop.ShopUser'
+AUTH_USER_MODEL = 'shop.ShopBuyer'
 
 # Application definition
 
