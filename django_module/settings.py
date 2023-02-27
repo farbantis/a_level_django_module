@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'factory',
     'shop.apps.ShopConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
