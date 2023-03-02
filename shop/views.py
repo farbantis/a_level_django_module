@@ -9,7 +9,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import ListView, CreateView, UpdateView
 from django.shortcuts import render, redirect
 from .models import Merchandise, ShopBuyer, Return, Order
-from .froms import UserRegistrationForm, MerchandiseQuantityForm, MerchandiseForm
+from .forms import UserRegistrationForm, MerchandiseQuantityForm, MerchandiseForm
 
 
 class RegisterUserView(CreateView):
