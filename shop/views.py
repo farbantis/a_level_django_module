@@ -10,6 +10,7 @@ from django.views.generic import ListView, CreateView, UpdateView
 from django.shortcuts import render, redirect
 from .models import Merchandise, ShopBuyer, Return, Order
 from .forms import UserRegistrationForm, MerchandiseQuantityForm, MerchandiseForm
+from utils.constants import INITIAL_WALLET_AMOUNT
 
 
 class RegisterUserView(CreateView):
@@ -24,7 +25,7 @@ class RegisterUserView(CreateView):
         if form.is_valid():
             new_user = form.save(commit=False)
             new_user.set_password(form.cleaned_data['password'])
-            new_user.wallet = 1_000_000
+            new_user.wallet = INITIAL_WALLET_AMOUNT
             new_user.save()
             messages.add_message(request, messages.SUCCESS, f'user was created and granted {new_user.wallet}$')
             return redirect('shop:login')
