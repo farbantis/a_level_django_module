@@ -3,7 +3,6 @@ from shop.models import ShopBuyer, Order, Return, Merchandise
 from utils.constants import INITIAL_WALLET_AMOUNT
 
 
-# 1) create - OK
 class CreateShopBuyerSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
@@ -19,7 +18,6 @@ class CreateShopBuyerSerializer(serializers.ModelSerializer):
         return shop_buyer
 
 
-# 1) list ok, 2) retrieve ok, 3) patch ok, 4) create ???
 class MerchandiseSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -27,18 +25,18 @@ class MerchandiseSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'price', 'picture', 'stock']
 
 
+class OrderSerializer(serializers.ModelSerializer):
+    # merchandise = MerchandiseSerializer(many=True)
+    # buyer = CreateShopBuyerSerializer(many=True)
+    # order_quantity = serializers.IntegerField()
+
+    class Meta:
+        model = Order
+        fields = ['merchandise', 'buyer', 'order_quantity', 'bought_at']
+
+
 class ReturnSerializer(serializers.ModelSerializer):
     pass
     # class Meta:
     #     model = Return
     #     fields = ['order_to_return', 'returned_at']
-
-
-class OrderSerializer(serializers.ModelSerializer):
-    merchandise = MerchandiseSerializer(many=True)
-    #buyer = ShopBuyerSerializer(many=True)
-    order_quantity = serializers.IntegerField()
-
-    # class Meta:
-    #     model = Order
-    #     fields = ['merchandise', 'buyer', 'order_quantity', 'bought_at']

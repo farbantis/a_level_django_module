@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions
 from rest_framework.generics import CreateAPIView
-from shop.api.serializers import MerchandiseSerializer, CreateShopBuyerSerializer
-from shop.models import Merchandise, ShopBuyer
+from shop.api.serializers import MerchandiseSerializer, CreateShopBuyerSerializer, OrderSerializer
+from shop.models import Merchandise, ShopBuyer, Order
 
 
 class CreateShopBuyerAPIView(CreateAPIView):
@@ -15,9 +15,16 @@ class MerchandiseViewSet(viewsets.ModelViewSet):
     lookup_field = 'pk'
     lookup_url_kwarg = 'item'
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    # authentication_classes = ['TokenAuthentication']
 
     def get_permissions(self):
         if self.request.user.is_staff:
             self.permission_classes = [permissions.IsAuthenticated]
         return super(MerchandiseViewSet, self).get_permissions()
+
+
+class OrdersAPIView(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    # permission_classes = [permissions.IsAuthenticated]
 
