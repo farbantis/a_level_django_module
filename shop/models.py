@@ -18,11 +18,14 @@ class Merchandise(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     price = models.DecimalField(max_digits=8, decimal_places=2, validators=[MinValueValidator(0.009)])
-    picture = models.ImageField(upload_to='pictures/%Y/%m', blank=True, null=True)
+    picture = models.ImageField(upload_to='pictures/%Y/%m', default='pictures/2023/02/sample.jpg')
     stock = models.PositiveIntegerField()
 
     def __str__(self):
         return self.name
+
+    def get_picture(self):
+        """if no picture is """
 
     def get_absolute_url(self):
         return reverse('shop:update_merchandise', kwargs={'pk': self.pk})
