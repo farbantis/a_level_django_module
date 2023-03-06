@@ -1,7 +1,9 @@
-from rest_framework import viewsets, permissions
+import datetime
+
+from rest_framework import viewsets, permissions, serializers
 from rest_framework.generics import CreateAPIView, DestroyAPIView
-from shop.api.serializers import MerchandiseSerializer, CreateShopBuyerSerializer, OrderSerializer, ReturnSerializer, \
-    ReturnDeleteSerializer
+from shop.api.serializers import MerchandiseSerializer, CreateShopBuyerSerializer, OrderSerializer, ReturnSerializer
+
 from shop.models import Merchandise, ShopBuyer, Order, Return
 
 
@@ -13,11 +15,10 @@ class CreateShopBuyerAPIView(CreateAPIView):
 
 
 class MerchandiseViewSet(viewsets.ModelViewSet):
-    """create, update, list for admin and list for authenticated users"""
+    """create, update, list for admin and list for all users"""
+
     queryset = Merchandise.objects.all()
     serializer_class = MerchandiseSerializer
-    lookup_field = 'pk'
-    lookup_url_kwarg = 'item'
     permission_classes = [permissions.IsAdminUser]
 
     def get_permissions(self):
@@ -32,6 +33,12 @@ class OrdersViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Order.objects.all()
+        else:
+            return Order.objects.filter(buyer=self.request.user)
+
 
 class ReturnViewSet(viewsets.ModelViewSet):
     """
@@ -40,35 +47,30 @@ class ReturnViewSet(viewsets.ModelViewSet):
     queryset = Return.objects.all()
     serializer_class = ReturnSerializer
     permission_classes = [permissions.IsAuthenticated]
-    #http_method_names = ['post', 'get']
+    http_method_names = ['post', 'get', 'delete']
+
+    def get_permissions(self):
+        if self.request.method in ('POST', 'GET'):
+            return [permissions.IsAuthenticated()]
+        return [permissions.IsAdminUser()]
 
     def perform_destroy(self, instance):
-        print('IN perform DESTROY')
-
-    def destroy(self, request, *args, **kwargs):
-        print('IN DESTROY')
-        print(self)
-        print(args)
-        print(kwargs)
-
-
-class ReturnDestroyAPIView(DestroyAPIView):
-    """is used by admin to delete an instance of return """
-    queryset = Return.objects.all()
-    serializer_class = ReturnDeleteSerializer
-    permission_classes = [permissions.IsAdminUser]
-
-    def perform_destroy(self, instance):
-        if self.request.data.get('is_accepted', 0):
+        if self.request.data.get('is_accepted'):
             user = ShopBuyer.objects.get(id=instance.order_to_return.buyer.id)
             product = Merchandise.objects.get(id=instance.order_to_return.merchandise.id)
             order = Order.objects.get(id=instance.order_to_return.id)
             order_value = order.get_order_value
-            print(user, order, order_value, product)
             user.wallet += order_value
             product.stock += order.order_quantity
             user.save()
             product.save()
         instance.delete()
 
+    def perform_create(self, serializer):
+        order_to_return = serializer.validated_data['order_to_return']
+        if Return.objects.filter(id=order_to_return.id).exists():
+            raise serializers.ValidationError('you have already applied for return, wait for acceptance')
+        if datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(minutes=3) > order_to_return.bought_at:
+            raise serializers.ValidationError('unfortunately you cant return the good, the time is up')
+        return serializer.save()
 

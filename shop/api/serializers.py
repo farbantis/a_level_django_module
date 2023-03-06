@@ -27,8 +27,6 @@ class MerchandiseSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    # merchandise = serializers.PrimaryKeyRelatedField(queryset=Merchandise.objects.all())
-    # buyer = serializers.PrimaryKeyRelatedField(queryset=ShopBuyer.objects.all())
 
     class Meta:
         model = Order
@@ -39,18 +37,15 @@ class OrderSerializer(serializers.ModelSerializer):
         merchandise = validated_data['merchandise']
         order_quantity = validated_data['order_quantity']
         new_order_amount = order_quantity * merchandise.price
-        print(buyer, merchandise)
         if new_order_amount > buyer.wallet:
             raise serializers.ValidationError('not enough money')
         if order_quantity > merchandise.stock:
             raise serializers.ValidationError('not enough stock')
-        print(merchandise.id, buyer.id, order_quantity)
         new_order = Order.objects.create(
             merchandise_id=merchandise.id,
             buyer_id=buyer.id,
             order_quantity=order_quantity,
                         )
-        print('test 3')
         buyer.wallet -= new_order_amount
         merchandise.stock -= order_quantity
         buyer.save()
@@ -59,28 +54,16 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class ReturnSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Return
-        fields = ('id', 'order_to_return', 'returned_at')
-
-    def create(self, validated_data):
-        order_to_return = validated_data['order_to_return']
-        if Return.objects.filter(id=order_to_return.id).exists():
-            raise serializers.ValidationError('you have already applied for return, wait for acceptance')
-        if datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(minutes=3) > order_to_return.bought_at:
-            raise serializers.ValidationError('unfortunately you cant return the good, the time is up')
-        return super().create(validated_data)
-
-
-class ReturnDeleteSerializer(serializers.ModelSerializer):
-    is_accepted = serializers.BooleanField(write_only=True)
+    is_accepted = serializers.BooleanField(write_only=True, required=False)
 
     class Meta:
         model = Return
         fields = ('id', 'order_to_return', 'returned_at', 'is_accepted')
 
-
-
-
-
+    # def create(self, validated_data):
+    #     order_to_return = validated_data['order_to_return']
+    #     if Return.objects.filter(id=order_to_return.id).exists():
+    #         raise serializers.ValidationError('you have already applied for return, wait for acceptance')
+    #     if datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(minutes=3) > order_to_return.bought_at:
+    #         raise serializers.ValidationError('unfortunately you cant return the good, the time is up')
+    #     return super().create(validated_data)
