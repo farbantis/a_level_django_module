@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+{% block user %}
+    {% include 'messages_inclusion.html' %}
+    <div class="container"
+         style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-around">
+        {% for product in products %}
+            <div class="card" style="margin: 10px">
+                <div class="title">{{ product.name }}</div>
+                <img src="{{ product.picture.url }}" style="width: 400px">
+                <div class="title">price: {{ product.price }}$</div>
+                <div class="quan_st">in stock: {{ product.stock }}pcs</div>
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <input type="number" min="1" name="quantity" placeholder="quantity" required>
+                    <input type="number" hidden name="id" value="{{ product.id }}">
+                    <button type="submit" {% if not request.user.is_authenticated %}disabled{% endif %}>BUY</button>
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+</body>
+</html>

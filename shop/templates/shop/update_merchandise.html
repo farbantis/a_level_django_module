@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+{% block staff %}
+    <div style="max-width: 1200px; margin: 0 auto">
+        <h1>updating merchandise</h1>
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Save Changes</button>
+        </form>
+    </div>
+{% endblock %}
+
+</body>
+</html>
